@@ -1,7 +1,7 @@
 let angle = 0;
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(windowWidth, windowHeight+100);
   angleMode(DEGREES);
 }
 function draw(){
