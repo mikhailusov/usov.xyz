@@ -1,2 +1,2 @@
-# mikhailusov.github.com
-usov.xyz website
+# usov.xyz
+Personal/artist website.
