@@ -79,6 +79,9 @@
             <label for="left-margin">Left margin: <span id="left-margin-value">20</span></label>
             <input type="range" id="left-margin" min="1" max="400" value="20">
         </div>
+        <div>
+          <i>Color pick squares. Algo by Mikhail Usov <a href="https://x.com/0xchecksum" target="_blank">follow on X</a></i>
+        </div>
     </div>
 
     <script>
@@ -95,6 +98,8 @@
             canvas = createCanvas(800, 1000);
             canvas.parent('canvas-container');
             background(220);
+            textSize(60)
+            text('Please upload an image', 100, 500)
 
             // Get control elements
             const imageUpload = document.getElementById('image-upload');
