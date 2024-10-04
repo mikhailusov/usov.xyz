@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Color pick squares | photoEFF | USOV.XYZ</title>
+    <!-- Include p5.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            font-family: Arial, sans-serif;
+        }
+        #canvas-container {
+            flex: 1;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #controls-container {
+            width: 300px;
+            padding: 20px;
+            box-sizing: border-box;
+            background: #fff;
+            border-left: 1px solid #ccc;
+        }
+        #controls-container h2 {
+            margin-top: 0;
+        }
+        #controls-container label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #controls-container input[type="range"] {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        #controls-container input[type="color"] {
+            width: 100%;
+            height: 30px;
+            margin-bottom: 15px;
+            padding: 0;
+            border: none;
+        }
+        #controls-container input[type="file"] {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div id="canvas-container">
+        <!-- The canvas will be inserted here by p5.js -->
+    </div>
+    <div id="controls-container">
+        <h2>Control Panel</h2>
+        <div>
+            <label for="image-upload">Upload an Image:</label>
+            <input type="file" id="image-upload" accept="image/*">
+        </div>
+        <div>
+            <label for="num-cols">Number of Columns: <span id="num-cols-value">10</span></label>
+            <input type="range" id="num-cols" min="1" max="100" value="10">
+        </div>
+        <div>
+            <label for="num-rows">Number of Rows: <span id="num-rows-value">10</span></label>
+            <input type="range" id="num-rows" min="1" max="100" value="10">
+        </div>
+        <div>
+            <label for="square-size">Size of Squares: <span id="square-size-value">20</span></label>
+            <input type="range" id="square-size" min="1" max="200" value="20">
+        </div>
+        <div>
+            <label for="top-margin">Top margin: <span id="top-margin-value">20</span></label>
+            <input type="range" id="top-margin" min="1" max="400" value="20">
+        </div>
+        <div>
+            <label for="left-margin">Left margin: <span id="left-margin-value">20</span></label>
+            <input type="range" id="left-margin" min="1" max="400" value="20">
+        </div>
+    </div>
+
+    <script>
+        let img;
+        let numCols = 10;
+        let numRows = 10;
+        let squareSize = 20;
+        let canvas;
+        let imgLoaded = false;
+        let topMargin = 20
+        let leftMargin = 20
+
+        function setup() {
+            canvas = createCanvas(800, 1000);
+            canvas.parent('canvas-container');
+            background(220);
+
+            // Get control elements
+            const imageUpload = document.getElementById('image-upload');
+            const numColsInput = document.getElementById('num-cols');
+            const numRowsInput = document.getElementById('num-rows');
+            const squareSizeInput = document.getElementById('square-size');
+            const topMarginInput = document.getElementById('top-margin');
+            const leftMarginInput = document.getElementById('left-margin');
+
+            // Display values next to sliders
+            const numColsValue = document.getElementById('num-cols-value');
+            const numRowsValue = document.getElementById('num-rows-value');
+            const squareSizeValue = document.getElementById('square-size-value');
+            const topMarginValue = document.getElementById('top-margin-value');
+            const leftMarginValue = document.getElementById('left-margin-value');
+
+            // Set up event listeners
+            imageUpload.addEventListener('change', handleImageUpload);
+            numColsInput.addEventListener('input', function() {
+                numCols = parseInt(this.value) || 1;
+                numColsValue.textContent = numCols;
+                redraw();
+            });
+            numRowsInput.addEventListener('input', function() {
+                numRows = parseInt(this.value) || 1;
+                numRowsValue.textContent = numRows;
+                redraw();
+            });
+            squareSizeInput.addEventListener('input', function() {
+                squareSize = parseInt(this.value) || 1;
+                squareSizeValue.textContent = squareSize;
+                redraw();
+            });
+            topMarginInput.addEventListener('input', function() {
+                topMargin = parseInt(this.value) || 1;
+                topMarginValue.textContent = topMargin;
+                redraw();
+            });
+            leftMarginInput.addEventListener('input', function() {
+                leftMargin = parseInt(this.value) || 1;
+                leftMarginValue.textContent = leftMargin;
+                redraw();
+            });
+
+            noLoop(); // Prevent automatic looping
+        }
+
+        function draw() {
+            if (imgLoaded) {
+                background(220);
+                image(img, 0, 0, width, height);
+
+                // stroke(borderColor);
+                // noStroke()
+
+
+                let colWidth = width / numCols;
+                let rowHeight = height / numRows;
+
+                for (let i = 0; i < numCols; i++) {
+                    for (let j = 0; j < numRows; j++) {
+                        let x = i * colWidth + (colWidth - squareSize) / 2 + (leftMargin);
+                        let y = j * rowHeight + (rowHeight - squareSize) / 2 + (topMargin);
+                        let currSide = random(10,squareSize)
+                        fill(img.get(x + random(currSide), y + random(currSide)));
+                        noStroke()
+                        square(x, y, currSide);
+                        stroke('#fefefe')
+                        strokeWeight(0.3)
+                        square(x, y, random(currSide))
+                    }
+                }
+            }
+        }
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    img = loadImage(e.target.result, function() {
+                        imgLoaded = true;
+                        resizeCanvas(img.width, img.height);
+                        redraw();
+                    });
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
