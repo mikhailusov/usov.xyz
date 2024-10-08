@@ -57,6 +57,14 @@
         #controls-container .checkbox-label input[type="checkbox"] {
             margin-right: 10px;
         }
+        /* Style for the reset button */
+        #controls-container #reset {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -78,11 +86,11 @@
             <input type="range" id="num-rows" min="1" max="100" value="8">
         </div>
         <div>
-            <label for="square-size">Size of Squares: <span id="square-size-value">70</span></label>
-            <input type="range" id="square-size" min="1" max="200" value="70">
+            <label for="square-size">Size of Squares: <span id="square-size-value">80</span></label>
+            <input type="range" id="square-size" min="1" max="200" value="80">
         </div>
 
-        <!-- New checkbox control -->
+        <!-- Checkbox control -->
         <div class="checkbox-label">
             <input type="checkbox" id="inner-square" checked>
             <label for="inner-square">Add an inner square</label>
@@ -96,10 +104,12 @@
             <label for="left-margin">Left margin: <span id="left-margin-value">20</span></label>
             <input type="range" id="left-margin" min="1" max="400" value="20">
         </div>
-        <!-- <div>
-          <label for="reset"><span>Reset to defaults</span></label>
-          <input type="button" id="reset" value="Reset" />
-        </div> -->
+
+        <!-- Reset button -->
+        <div>
+            <input type="button" id="reset" value="Reset to Defaults">
+        </div>
+
         <div><br/>
           <i>Color pick squares. Algo by Mikhail Usov <a href="https://x.com/0xchecksum" target="_blank">follow on X</a></i>
         </div>
@@ -116,6 +126,16 @@
         let leftMargin = 20;
         let addInnerSquare = true; // Variable to track checkbox state
 
+        // Default values for reset
+        const defaultSettings = {
+            numCols: 8,
+            numRows: 8,
+            squareSize: 80,
+            topMargin: 20,
+            leftMargin: 20,
+            addInnerSquare: true
+        };
+
         function setup() {
             canvas = createCanvas(800, 1000);
             canvas.parent('canvas-container');
@@ -130,7 +150,8 @@
             const squareSizeInput = document.getElementById('square-size');
             const topMarginInput = document.getElementById('top-margin');
             const leftMarginInput = document.getElementById('left-margin');
-            const innerSquareCheckbox = document.getElementById('inner-square'); // New checkbox element
+            const innerSquareCheckbox = document.getElementById('inner-square');
+            const resetButton = document.getElementById('reset'); // Reset button element
 
             // Display values next to sliders
             const numColsValue = document.getElementById('num-cols-value');
@@ -167,9 +188,38 @@
                 redraw();
             });
 
-            // Event listener for the new checkbox
+            // Event listener for the checkbox
             innerSquareCheckbox.addEventListener('change', function() {
                 addInnerSquare = this.checked;
+                redraw();
+            });
+
+            // Event listener for the reset button
+            resetButton.addEventListener('click', function() {
+                // Reset variables to default values
+                numCols = defaultSettings.numCols;
+                numRows = defaultSettings.numRows;
+                squareSize = defaultSettings.squareSize;
+                topMargin = defaultSettings.topMargin;
+                leftMargin = defaultSettings.leftMargin;
+                addInnerSquare = defaultSettings.addInnerSquare;
+
+                // Reset the control elements to default values
+                numColsInput.value = numCols;
+                numRowsInput.value = numRows;
+                squareSizeInput.value = squareSize;
+                topMarginInput.value = topMargin;
+                leftMarginInput.value = leftMargin;
+                innerSquareCheckbox.checked = addInnerSquare;
+
+                // Update the displayed values next to sliders
+                numColsValue.textContent = numCols;
+                numRowsValue.textContent = numRows;
+                squareSizeValue.textContent = squareSize;
+                topMarginValue.textContent = topMargin;
+                leftMarginValue.textContent = leftMargin;
+
+                // Redraw the canvas
                 redraw();
             });
 
@@ -210,6 +260,11 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     img = loadImage(e.target.result, function() {
+                        // Check if the image width is more than 1000 pixels
+                        if (img.width > 1000) {
+                            // Resize the image to 1000 pixels width while maintaining aspect ratio
+                            img.resize(1000, 0);
+                        }
                         imgLoaded = true;
                         resizeCanvas(img.width, img.height);
                         redraw();
