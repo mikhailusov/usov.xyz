@@ -47,6 +47,16 @@
             width: 100%;
             margin-bottom: 15px;
         }
+        /* Style for the checkbox label */
+        #controls-container .checkbox-label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        #controls-container .checkbox-label input[type="checkbox"] {
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -71,6 +81,13 @@
             <label for="square-size">Size of Squares: <span id="square-size-value">70</span></label>
             <input type="range" id="square-size" min="1" max="200" value="70">
         </div>
+
+        <!-- New checkbox control -->
+        <div class="checkbox-label">
+            <input type="checkbox" id="inner-square" checked>
+            <label for="inner-square">Add an inner square</label>
+        </div>
+
         <div>
             <label for="top-margin">Top margin: <span id="top-margin-value">20</span></label>
             <input type="range" id="top-margin" min="1" max="400" value="20">
@@ -95,15 +112,16 @@
         let squareSize = 80;
         let canvas;
         let imgLoaded = false;
-        let topMargin = 20
-        let leftMargin = 20
+        let topMargin = 20;
+        let leftMargin = 20;
+        let addInnerSquare = true; // Variable to track checkbox state
 
         function setup() {
             canvas = createCanvas(800, 1000);
             canvas.parent('canvas-container');
             background(220);
-            textSize(60)
-            text('Please upload an image', 100, 500)
+            textSize(60);
+            text('Please upload an image', 100, 500);
 
             // Get control elements
             const imageUpload = document.getElementById('image-upload');
@@ -112,6 +130,7 @@
             const squareSizeInput = document.getElementById('square-size');
             const topMarginInput = document.getElementById('top-margin');
             const leftMarginInput = document.getElementById('left-margin');
+            const innerSquareCheckbox = document.getElementById('inner-square'); // New checkbox element
 
             // Display values next to sliders
             const numColsValue = document.getElementById('num-cols-value');
@@ -148,6 +167,12 @@
                 redraw();
             });
 
+            // Event listener for the new checkbox
+            innerSquareCheckbox.addEventListener('change', function() {
+                addInnerSquare = this.checked;
+                redraw();
+            });
+
             noLoop(); // Prevent automatic looping
         }
 
@@ -156,24 +181,24 @@
                 background(220);
                 image(img, 0, 0, width, height);
 
-                // stroke(borderColor);
-                // noStroke()
-
-
                 let colWidth = width / numCols;
                 let rowHeight = height / numRows;
 
                 for (let i = 0; i < numCols; i++) {
                     for (let j = 0; j < numRows; j++) {
-                        let x = i * colWidth + (colWidth - squareSize) / 2 + (leftMargin);
-                        let y = j * rowHeight + (rowHeight - squareSize) / 2 + (topMargin);
-                        let currSide = random(10,squareSize)
+                        let x = i * colWidth + (colWidth - squareSize) / 2 + leftMargin;
+                        let y = j * rowHeight + (rowHeight - squareSize) / 2 + topMargin;
+                        let currSide = random(10, squareSize);
                         fill(img.get(x + random(currSide), y + random(currSide)));
-                        noStroke()
+                        noStroke();
                         square(x, y, currSide);
-                        stroke('#fefefe')
-                        strokeWeight(0.3)
-                        square(x, y, random(currSide))
+
+                        // Optional square code
+                        if (addInnerSquare) {
+                            stroke('#fefefe');
+                            strokeWeight(0.3);
+                            square(x, y, random(currSide));
+                        }
                     }
                 }
             }
