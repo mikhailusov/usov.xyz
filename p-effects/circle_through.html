@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Circle through | p-effects | USOV.XYZ</title>
+  <style>
+    body {
+      display: flex;
+      margin: 0;
+      /* Arrange items horizontally */
+      flex-direction: row;
+    }
+    #canvas-container {
+      flex: 1;
+      margin: 20px;
+    }
+    #controls {
+      width: 300px;
+      padding: 20px;
+      box-sizing: border-box;
+      background-color: #f0f0f0;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="range"] {
+      width: 100%;
+    }
+    input[type="file"] {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Canvas Container -->
+  <div id="canvas-container"></div>
+
+  <!-- Controls -->
+  <div id="controls">
+    <!-- File Uploads -->
+    <label for="upload-image1">Upload First Image:</label>
+    <input type="file" id="upload-image1" accept="image/*">
+
+    <label for="upload-image2">Upload Second Image:</label>
+    <input type="file" id="upload-image2" accept="image/*">
+
+    <!-- Adjustments -->
+    <label for="grid-x">Grid Columns (X): <span id="grid-x-value">5</span></label>
+    <input type="range" id="grid-x" min="1" max="50" value="5">
+
+    <label for="grid-y">Grid Rows (Y): <span id="grid-y-value">5</span></label>
+    <input type="range" id="grid-y" min="1" max="50" value="5">
+
+    <label for="circle-radius">Circle Radius: <span id="circle-radius-value">30</span></label>
+    <input type="range" id="circle-radius" min="1" max="200" value="30">
+
+    <div><br/>
+      <i>Circle through</i>. Algo by Mikhail Usov <a href="https://x.com/0xchecksum" target="_blank">follow on X</a></i>
+    </div>
+  </div>
+
+  <!-- p5.js Library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.js"></script>
+  <!-- Script -->
+  <script>
+    let img1, img2;
+    const canvasWidth = 800;
+    const canvasHeight = 1000;
+    let circleRadius = 30; // Default circle radius
+    let gridX = 5; // Default number of columns
+    let gridY = 5; // Default number of rows
+    let pg; // PGraphics layer
+
+    function setup() {
+      let canvas = createCanvas(canvasWidth, canvasHeight);
+      canvas.parent('canvas-container');
+      pg = createGraphics(canvasWidth, canvasHeight);
+
+      // Get elements
+      const gridXSlider = document.getElementById('grid-x');
+      const gridYSlider = document.getElementById('grid-y');
+      const circleRadiusSlider = document.getElementById('circle-radius');
+      const gridXValue = document.getElementById('grid-x-value');
+      const gridYValue = document.getElementById('grid-y-value');
+      const circleRadiusValue = document.getElementById('circle-radius-value');
+
+      // Update slider values and redraw on input
+      gridXSlider.addEventListener('input', function() {
+        gridX = parseInt(this.value);
+        gridXValue.textContent = gridX;
+        redraw();
+      });
+
+      gridYSlider.addEventListener('input', function() {
+        gridY = parseInt(this.value);
+        gridYValue.textContent = gridY;
+        redraw();
+      });
+
+      circleRadiusSlider.addEventListener('input', function() {
+        circleRadius = parseInt(this.value);
+        circleRadiusValue.textContent = circleRadius;
+        redraw();
+      });
+
+      noLoop(); // Disable continuous looping
+    }
+
+    function draw() {
+      background(220);
+
+      if (img1) {
+        image(img1, 0, 0, canvasWidth, canvasHeight);
+      }
+
+      if (img2) {
+        // Draw the second image onto the PGraphics layer
+        pg.clear();
+        pg.image(img2, 0, 0, canvasWidth, canvasHeight);
+
+        // Draw transparent circles grid on the PGraphics layer
+        pg.erase();
+        pg.noStroke();
+
+        let cellWidth = canvasWidth / gridX;
+        let cellHeight = canvasHeight / gridY;
+
+        for (let i = 0; i < gridX; i++) {
+          for (let j = 0; j < gridY; j++) {
+            let centerX = i * cellWidth + cellWidth / 2;
+            let centerY = j * cellHeight + cellHeight / 2;
+            pg.circle(centerX, centerY, circleRadius * 2);
+          }
+        }
+
+        pg.noErase();
+
+        // Draw the PGraphics layer onto the main canvas
+        image(pg, 0, 0);
+      }
+    }
+
+    // Handle first image upload
+    document.getElementById('upload-image1').addEventListener('change', function(event) {
+      let file = event.target.files[0];
+      if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          loadImage(e.target.result, function(loadedImage) {
+            img1 = loadedImage;
+            img1.resize(canvasWidth, canvasHeight);
+            redraw();
+          });
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Handle second image upload
+    document.getElementById('upload-image2').addEventListener('change', function(event) {
+      let file = event.target.files[0];
+      if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+          loadImage(e.target.result, function(loadedImage) {
+            img2 = loadedImage;
+            img2.resize(canvasWidth, canvasHeight);
+            redraw();
+          });
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
